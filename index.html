@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ministério On Treinamento</title>
+<link rel="icon" href="assets/icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Direção: noite azul-marinho do Ministério On, luz azul→verde do símbolo (cruz e anel), lima como destaque.
+   Layout: nav flutuante em pílula; hero com tela real do sistema flutuando entre anéis de luz; trilha com rolagem por fases;
+   página de aula = cinema (vídeo grande) + roteiro em checklist com miniaturas. Visual único escuro, por escolha. */
+:root{
+  --bg:#040b24; --bg2:#071a4a; --panel:#0a1a44; --card:rgba(255,255,255,.045); --line:rgba(160,190,255,.12); --line2:rgba(160,190,255,.22);
+  --fg:#eef3ff; --muted:#9fb0d6; --dim:#6f82b0;
+  --blue:#1d5fd1; --blue2:#3b82f6; --green:#3fb94a; --lime:#9be15d; --gold:#f2c14e; --red:#ff7a7a;
+  --p1:#4f8cff; --p2:#29a9e6; --p3:#2fc49a; --p4:#6fd36a; --p5:#9be15d;
+  --display:"Montserrat",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+a{color:inherit}
+img{max-width:100%;display:block}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.05;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:6px}
+.hl{color:var(--lime)}
+.grad{background:linear-gradient(90deg,var(--blue2),var(--green) 70%,var(--lime));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mono{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:rgba(255,255,255,.04);border-radius:999px;padding:6px 14px 6px 8px;font-size:.85rem;color:var(--muted)}
+.pill i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(155,225,93,.15);color:var(--lime);font-style:normal;font-size:.8rem}
+.btn{display:inline-flex;align-items:center;gap:10px;white-space:nowrap;border-radius:12px;padding:13px 20px;font-weight:700;font-family:var(--display);font-size:.95rem;text-decoration:none;border:1px solid transparent;transition:transform .2s,box-shadow .2s,background .2s}
+.btn.pri{background:var(--lime);color:#06210c;box-shadow:0 10px 40px -10px rgba(155,225,93,.6)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 16px 50px -10px rgba(155,225,93,.75)}
+.btn.ghost{border-color:var(--line2);background:rgba(255,255,255,.04);color:var(--fg)}
+.btn.ghost:hover{background:rgba(255,255,255,.08)}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;z-index:50;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(1200px,calc(100% - 28px));display:flex;align-items:center;gap:14px;padding:8px 8px 8px 14px;border-radius:18px;background:rgba(6,16,46,.72);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);border:1px solid var(--line);box-shadow:0 20px 60px -20px rgba(0,0,0,.7)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand img{width:34px;height:34px}
+.brand b{font:900 1rem/1 var(--display);letter-spacing:.01em}
+.brand b span{color:var(--green)}
+.brand small{display:block;font:500 .62rem var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:3px}
+.nav nav{display:flex;gap:2px;margin-left:auto}
+.nav nav a{padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-size:.9rem;font-weight:500}
+.nav nav a:hover,.nav nav a.on{color:var(--fg);background:rgba(255,255,255,.06)}
+.ring{flex:none;width:40px;height:40px;position:relative;display:grid;place-items:center}
+.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring b{font:700 .68rem var(--mono);color:var(--lime)}
+.nav .btn{padding:10px 16px;font-size:.88rem}
+.menuBtn{display:inline-block;border:1px solid var(--line2);background:rgba(255,255,255,.04);border-radius:10px;padding:9px 12px;font-weight:600;font-size:.88rem}
+
+/* drawer de módulos */
+.drawer{position:fixed;inset:0;z-index:70;display:flex;justify-content:flex-end;background:rgba(2,6,20,.6);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer.open{opacity:1;pointer-events:auto}
+.drawer aside{width:min(420px,100%);height:100%;overflow:auto;background:var(--panel);border-left:1px solid var(--line);padding:calc(22px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 20px;display:flex;flex-direction:column;gap:16px;transform:translateX(30px);transition:transform .3s}
+.drawer.open aside{transform:none}
+.drawer header{display:flex;justify-content:space-between;align-items:center}
+.drawer .x{background:none;border:1px solid var(--line2);border-radius:10px;padding:6px 12px}
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--fg);font:inherit}
+.dgrp{display:flex;flex-direction:column;gap:4px}
+.dgrp .mono{color:var(--pc);padding:4px 6px}
+.dl{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;text-decoration:none;font-size:.92rem;line-height:1.3}
+.dl:hover{background:rgba(255,255,255,.05)}
+.dl.on{background:rgba(155,225,93,.08)}
+.dl .n{font:600 .72rem var(--mono);color:var(--dim);min-width:2.2em}
+.st{margin-left:auto;flex:none;width:14px;height:14px;border-radius:50%;border:2px solid var(--line2)}
+.st.part{border-color:var(--gold);background:conic-gradient(var(--gold) 50%,transparent 0)}
+.st.done{border-color:var(--lime);background:var(--lime)}
+.empty{color:var(--dim);font-size:.9rem;padding:6px}
+
+main{min-height:100vh}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;padding-top:calc(150px + env(safe-area-inset-top,0px));padding-bottom:90px;margin-top:calc(-1 * env(safe-area-inset-top,0px))}
+.sky{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.sky .g{position:absolute;border-radius:50%;filter:blur(20px)}
+.sky .g1{width:900px;height:900px;right:-200px;top:-260px;background:radial-gradient(circle,rgba(29,95,209,.55),transparent 62%)}
+.sky .g2{width:800px;height:800px;left:-320px;bottom:-380px;background:radial-gradient(circle,rgba(63,185,74,.32),transparent 60%)}
+.sky .grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 70% 60% at 60% 30%,#000 20%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse 70% 60% at 60% 30%,#000 20%,transparent 75%);opacity:.5}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.02fr 1fr;gap:40px;align-items:center}
+.hero-copy{display:flex;flex-direction:column;gap:24px;min-width:0}
+.hero h1{font-size:clamp(2.6rem,5.6vw,4.9rem);font-weight:900}
+.hero .lead{font-size:1.12rem;color:var(--muted);max-width:34em}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.stats{display:flex;flex-wrap:wrap;gap:28px;margin-top:8px}
+.stats div{display:flex;flex-direction:column}
+.stats b{font:900 1.9rem/1 var(--display);font-variant-numeric:tabular-nums}
+.stats span{font-size:.82rem;color:var(--dim);margin-top:6px}
+.stage{position:relative;aspect-ratio:1.12;min-width:0;perspective:1600px}
+.orb{position:absolute;left:50%;top:50%;border-radius:50%;border:1px solid rgba(155,225,93,.22);transform:translate(-50%,-50%) rotateX(68deg)}
+.orb.o1{width:110%;aspect-ratio:1}
+.orb.o2{width:80%;aspect-ratio:1;border-color:rgba(79,140,255,.3)}
+.orb.o3{width:140%;aspect-ratio:1;border-color:rgba(79,140,255,.12)}
+.halo{position:absolute;left:50%;top:52%;width:70%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(155,225,93,.35),rgba(29,95,209,.25) 40%,transparent 68%);filter:blur(30px)}
+.screen{position:absolute;left:4%;right:2%;top:14%;border-radius:14px;overflow:hidden;background:#0b1430;border:1px solid var(--line2);box-shadow:0 50px 120px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.04),0 0 80px -20px rgba(59,130,246,.5);transform:rotateY(-14deg) rotateX(6deg);transform-origin:60% 50%;animation:bob 7s ease-in-out infinite}
+.screen .bar{height:30px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#e8edf6}
+.screen .bar i{width:9px;height:9px;border-radius:50%;background:#c3cad8}
+.screen .bar i:nth-child(1){background:#ff5f57}.screen .bar i:nth-child(2){background:#febc2e}.screen .bar i:nth-child(3){background:#28c840}
+.screen .bar span{margin-left:10px;flex:1;height:18px;border-radius:6px;background:#fff;font:500 .6rem/18px var(--mono);color:#7a86a0;padding:0 8px;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden}
+.chipf{position:absolute;z-index:3;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(8,20,56,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line2);box-shadow:0 20px 50px -15px rgba(0,0,0,.8);font-size:.82rem;white-space:nowrap;animation:bob 6s ease-in-out infinite}
+.chipf .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none}
+.chipf small{display:block;color:var(--dim);font-size:.7rem}
+.c1{left:-6%;top:6%;animation-delay:-2s}.c1 .ic{background:rgba(155,225,93,.16);color:var(--lime)}
+.c2{right:-4%;top:58%;animation-delay:-4s}.c2 .ic{background:rgba(242,193,78,.16);color:var(--gold)}
+.c3{left:6%;bottom:2%;animation-delay:-1s}.c3 .ic{background:rgba(79,140,255,.18);color:var(--p1)}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -10px}}
+
+/* ---------- seções ---------- */
+.sec{padding-block:96px;position:relative}
+.sec-head{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;max-width:760px}
+.sec-head .mono{color:var(--lime)}
+.sec-head h2{font-size:clamp(2rem,4vw,3.2rem);font-weight:900}
+.sec-head p{color:var(--muted);font-size:1.05rem}
+.cinema{position:relative;border-radius:22px;padding:10px;background:linear-gradient(135deg,rgba(59,130,246,.5),rgba(63,185,74,.35) 60%,rgba(155,225,93,.4));box-shadow:0 60px 140px -40px rgba(29,95,209,.6)}
+.cinema video{width:100%;aspect-ratio:16/9;display:block;border-radius:14px;background:#050f30}
+.cinema .tagv{position:absolute;left:28px;top:-14px;background:var(--lime);color:#06210c;font:800 .72rem var(--display);letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border-radius:8px}
+
+/* trilha */
+.trilha{display:grid;grid-template-columns:300px 1fr;gap:48px;align-items:start}
+.fase-nav{position:sticky;top:110px;display:flex;flex-direction:column;gap:6px}
+.fase-nav a{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:12px;border-radius:14px;text-decoration:none;color:var(--dim);border:1px solid transparent;transition:all .25s}
+.fase-nav a b{font:900 1.6rem/1 var(--display);color:inherit}
+.fase-nav a span{font-weight:600;font-size:.95rem;line-height:1.25}
+.fase-nav a small{display:block;font-weight:400;font-size:.78rem;color:var(--dim)}
+.fase-nav a.on{color:var(--fg);background:var(--card);border-color:var(--line)}
+.fase-nav a.on b{color:var(--pc)}
+.fases{display:flex;flex-direction:column;gap:56px;min-width:0}
+.fase h3{font-size:1.5rem;font-weight:800;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.fase h3 .mono{color:var(--pc)}
+.fase > p{color:var(--muted);margin-top:6px}
+.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:22px}
+.mod{position:relative;display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:var(--card);border:1px solid var(--line);text-decoration:none;transition:transform .3s,border-color .3s,box-shadow .3s}
+.mod:hover{transform:translateY(-4px);border-color:var(--pc);box-shadow:0 30px 70px -30px var(--pc)}
+.mod .th{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0b1430}
+.mod .th img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .6s}
+.mod:hover .th img{transform:scale(1.05)}
+.mod .th::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(4,11,36,.95))}
+.mod .play{position:absolute;z-index:2;left:14px;bottom:12px;display:flex;align-items:center;gap:8px;font:600 .78rem var(--body);color:#fff}
+.mod .play i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--lime);color:#06210c;font-style:normal;font-size:.8rem;box-shadow:0 0 0 6px rgba(155,225,93,.18)}
+.mod .num{position:absolute;z-index:2;right:14px;top:12px;font:900 1.9rem/1 var(--display);color:rgba(255,255,255,.9);text-shadow:0 4px 20px rgba(0,0,0,.6)}
+.mod .bd{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.mod h4{margin:0;font:800 1.08rem/1.25 var(--display);letter-spacing:-.01em}
+.mod p{font-size:.88rem;color:var(--muted)}
+.mod .ft{margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:var(--dim)}
+.badge{font:600 .66rem var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--dim)}
+.badge.done{background:rgba(155,225,93,.14);border-color:transparent;color:var(--lime)}
+.badge.part{background:rgba(242,193,78,.14);border-color:transparent;color:var(--gold)}
+
+/* bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.bx{border-radius:20px;background:var(--card);border:1px solid var(--line);padding:26px;display:flex;flex-direction:column;gap:10px;min-width:0;position:relative;overflow:hidden}
+.bx h3{font-size:1.3rem;font-weight:800}
+.bx p{color:var(--muted);font-size:.95rem}
+.bx.a{grid-column:span 4}.bx.b{grid-column:span 2}.bx.c{grid-column:span 2}.bx.d{grid-column:span 2}.bx.e{grid-column:span 2}
+.bx.gold{background:linear-gradient(135deg,rgba(242,193,78,.16),rgba(242,193,78,.04));border-color:rgba(242,193,78,.3)}
+.bx.lime{background:var(--lime);color:#06210c;border:none}
+.bx.lime p{color:#1d4a17}
+.bx .big{font:900 3.6rem/1 var(--display)}
+.mini-steps{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.mini-steps div{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:.88rem}
+.mini-steps div.ok{background:rgba(155,225,93,.1);border-color:transparent;color:var(--muted)}
+.mini-steps b{width:18px;height:18px;border-radius:5px;border:2px solid var(--line2);flex:none}
+.mini-steps .ok b{background:var(--lime);border-color:var(--lime)}
+.mini-steps code{margin-left:auto;font:500 .7rem var(--mono);color:var(--lime)}
+
+/* cadeia */
+.chain{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.chain .lk{flex:1 1 160px;border-radius:16px;padding:18px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px;position:relative}
+.chain .lk b{font:900 1.6rem/1 var(--display);color:var(--lime)}
+.chain .lk h4{margin:0;font:800 1rem/1.2 var(--display)}
+.chain .lk p{font-size:.84rem;color:var(--muted)}
+.note{border-radius:16px;padding:18px 20px;background:rgba(242,193,78,.08);border:1px solid rgba(242,193,78,.3);display:flex;flex-direction:column;gap:8px}
+.note b{color:var(--gold)}
+.note ul{margin:0;padding-left:18px;color:var(--muted)}
+.note code,.code{font:500 .82em var(--mono);background:rgba(255,255,255,.07);padding:1px 6px;border-radius:5px;color:var(--fg)}
+
+/* cronograma */
+.tl{display:flex;flex-direction:column;gap:0;position:relative}
+.tl::before{content:"";position:absolute;left:23px;top:10px;bottom:10px;width:2px;background:linear-gradient(var(--p1),var(--p5))}
+.wk{display:grid;grid-template-columns:48px 1fr;gap:20px;padding:14px 0}
+.wk .dot{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line2);font:900 1.1rem var(--display);position:relative;z-index:1}
+.wk .dot.done{background:var(--lime);color:#06210c;border-color:var(--lime)}
+.wk .card{border-radius:16px;background:var(--card);border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.wk .card h4{margin:0;font:800 1.05rem var(--display);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.wk .card p{color:var(--muted);font-size:.92rem}
+.wk .tags{display:flex;flex-wrap:wrap;gap:6px}
+.wk .tags a{font-size:.8rem;padding:4px 10px;border-radius:999px;border:1px solid var(--line2);text-decoration:none;color:var(--fg)}
+.wk .tags a:hover{border-color:var(--lime)}
+.tbl{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 .7rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;white-space:nowrap}
+td a{color:var(--lime)}
+
+/* página de módulo */
+.mhero{position:relative;overflow:hidden;padding-top:calc(130px + env(safe-area-inset-top,0px));padding-bottom:40px;margin-top:calc(-1 * env(safe-area-inset-top,0px))}
+.mhero .wrap{position:relative;display:flex;flex-direction:column;gap:18px}
+.crumb{display:flex;flex-wrap:wrap;gap:10px;align-items:center;color:var(--dim);font-size:.85rem}
+.crumb a{text-decoration:none;color:var(--muted)}
+.crumb .mono{color:var(--pc)}
+.mhero h1{font-size:clamp(2.2rem,4.6vw,4rem);font-weight:900;max-width:18ch}
+.mhero h1 .n{display:block;font-size:.42em;color:var(--pc);letter-spacing:.06em;margin-bottom:10px}
+.mhero .meta{display:flex;flex-wrap:wrap;gap:8px}
+.mbody{display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start;padding-block:40px 40px}
+.mbody > *{min-width:0}
+.mside{position:sticky;top:104px;display:flex;flex-direction:column;gap:14px}
+.box{border-radius:18px;background:var(--card);border:1px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:10px}
+.box .mono{color:var(--dim)}
+.box.ex{border-color:rgba(155,225,93,.35);background:linear-gradient(160deg,rgba(155,225,93,.12),rgba(155,225,93,.02))}
+.box.ex .mono{color:var(--lime)}
+.box.gd{border-color:rgba(242,193,78,.35);background:linear-gradient(160deg,rgba(242,193,78,.14),rgba(242,193,78,.02))}
+.box.gd .mono{color:var(--gold)}
+.box .chips{display:flex;flex-wrap:wrap;gap:6px}
+.box .chips a{font-size:.82rem;padding:4px 10px;border-radius:999px;border:1px solid var(--line2);text-decoration:none}
+.box .chips a.ok{border-color:rgba(155,225,93,.5);color:var(--lime)}
+.steps-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin:40px 0 16px}
+.steps-h h2{font-size:1.7rem;font-weight:900}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:s}
+.step{display:grid;grid-template-columns:auto 132px 1fr auto;gap:16px;align-items:center;padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--line);transition:background .25s,border-color .25s}
+.step:hover{border-color:var(--line2)}
+.step.ok{background:rgba(155,225,93,.07);border-color:rgba(155,225,93,.25)}
+.step input{appearance:none;-webkit-appearance:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--line2);margin:0 0 0 4px;display:grid;place-items:center;cursor:pointer;transition:all .2s}
+.step input:checked{background:var(--lime);border-color:var(--lime)}
+.step input:checked::after{content:"";width:6px;height:11px;border:solid #06210c;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.step .sth{border-radius:10px;overflow:hidden;aspect-ratio:16/10;border:1px solid var(--line)}
+.step .sth img{width:100%;height:100%;object-fit:cover;object-position:top}
+.step label{cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0}
+.step label b{font-weight:600;line-height:1.35}
+.step.ok label b{color:var(--muted)}
+.step label span{font:500 .72rem var(--mono);color:var(--dim);word-break:break-all}
+.step .k{font:800 .75rem var(--mono);color:var(--pc)}
+.step a.go{font:600 .8rem var(--body);white-space:nowrap;text-decoration:none;border:1px solid var(--line2);border-radius:10px;padding:8px 12px;color:var(--lime)}
+.step a.go:hover{background:rgba(155,225,93,.1)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-block:20px 80px}
+.pager a{border-radius:18px;padding:20px 22px;text-decoration:none;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px;transition:border-color .2s}
+.pager a:hover{border-color:var(--lime)}
+.pager a small{font:600 .68rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.pager a b{font:800 1.05rem var(--display)}
+.pager a.next{text-align:right}
+.settings input{padding:12px 14px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--fg);font:inherit;width:100%}
+.msg{color:var(--muted);font-size:.9rem}
+
+footer.site{border-top:1px solid var(--line);padding-block:40px calc(40px + env(safe-area-inset-bottom,0px));color:var(--dim);font-size:.85rem}
+footer.site .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+
+/* revelar ao rolar (conteúdo visível mesmo sem JS) */
+.js .rv{opacity:0;transform:translateY(24px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.js .rv.in{opacity:1;transform:none}
+
+@media (max-width:980px){
+  .hero .wrap{grid-template-columns:1fr}
+  .stage{max-width:560px;width:100%;margin:10px auto 0}
+  .trilha{grid-template-columns:1fr}
+  .fase-nav{position:static;flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .fase-nav a{grid-template-columns:auto;min-width:150px}
+  .mbody{grid-template-columns:1fr}
+  .mside{position:static}
+  .bx.a,.bx.b,.bx.c,.bx.d,.bx.e{grid-column:span 6}
+  .nav nav{display:none}
+  .menuBtn{margin-left:auto}
+}
+@media (max-width:600px){
+  .nav .btn.pri{display:none}
+  .brand small{display:none}
+  .step{grid-template-columns:auto 1fr;grid-template-areas:"c l" "t t" "g g"}
+  .step input{grid-area:c}.step label{grid-area:l}.step .sth{grid-area:t}.step a.go{grid-area:g;text-align:center}
+  .pager{grid-template-columns:1fr}
+  .pager a.next{text-align:left}
+  .c1{left:0}.c2{right:0}
+  .sec{padding-block:64px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.js .rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<header class="nav" id="nav">
+  <a class="brand" href="#inicio" aria-label="Ministério On Treinamento, início"><img src="assets/simbolo.png" alt=""><span><b>MINISTÉRIO <span>ON</span></b><small>Treinamento</small></span></a>
+  <nav aria-label="Seções"><a href="#inicio" data-r="inicio">Início</a><a href="#trilha" data-r="trilha">Trilha</a><a href="#arquitetura" data-r="arquitetura">Arquitetura</a><a href="#cronograma" data-r="cronograma">Cronograma</a><a href="#pendencias" data-r="pendencias">Pendências</a><a href="#ajustes" data-r="ajustes">Ajustes</a></nav>
+  <button class="menuBtn" id="menuBtn" aria-controls="drawer" aria-expanded="false">Módulos</button>
+  <div class="ring" title="Progresso da trilha"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(160,190,255,.15)" stroke-width="4"/><circle id="ringC" cx="20" cy="20" r="16" fill="none" stroke="#9be15d" stroke-width="4" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="100.5"/></svg><b id="ringT">0%</b></div>
+  <a class="btn pri" id="contBtn" href="#m01">Começar</a>
+</header>
+
+<div class="drawer" id="drawer" aria-hidden="true">
+  <aside aria-label="Módulos do treinamento">
+    <header><b style="font:800 1.1rem var(--display)">Módulos</b><button class="x" id="closeDrawer">Fechar</button></header>
+    <input class="search" id="q" type="search" placeholder="Buscar tela ou assunto (ex.: escala)" aria-label="Buscar módulos">
+    <div id="dlist" style="display:flex;flex-direction:column;gap:14px"></div>
+    <nav style="display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--line);padding-top:14px">
+      <a class="badge" href="#arquitetura">Arquitetura</a><a class="badge" href="#cronograma">Cronograma</a><a class="badge" href="#pendencias">Pendências</a><a class="badge" href="#ajustes">Ajustes</a>
+    </nav>
+  </aside>
+</div>
+
+<main id="view"></main>
+
+<footer class="site"><div class="wrap"><span style="display:flex;align-items:center;gap:10px"><img src="assets/simbolo.png" alt="" width="28" height="28"> Ministério On · Gestão de Igrejas — trilha de implantação</span><span>Progresso salvo neste navegador</span></div></footer>
+
+<script>
+// ---------- Conteúdo ----------
+const FASES=[
+ {id:1,nome:"Configuração inicial",cor:"--p1",resumo:"Parametrizar a igreja, a rede de unidades e a hierarquia de cargos."},
+ {id:2,nome:"Cadastros principais",cor:"--p2",resumo:"Membros, usuários, visitantes, núcleos e ministérios."},
+ {id:3,nome:"Operação e rotina",cor:"--p3",resumo:"Agenda, escalas, presença, ensino e comunicação do dia a dia."},
+ {id:4,nome:"Patrimônio e pessoas",cor:"--p4",resumo:"Patrimônio, compras e RH. O Financeiro não está disponível no plano observado."},
+ {id:5,nome:"Inteligência",cor:"--p5",resumo:"Painéis, indicadores e relatórios."}
+];
+// roteiro: [texto, caminho no sistema, miniatura]
+const MODULOS=[
+ {id:"m01",fase:1,titulo:"Primeiros passos e perfil da igreja",objetivo:"Navegar no sistema, trocar a unidade ativa e completar o perfil da igreja.",prereq:[],prereqTxt:"Acesso de Administrador.",
+  roteiro:[["Meu perfil e Segurança da conta","/conta/perfil/","perfil"],["Painel: cards, filtro de unidade e quadro “Atenção da Liderança”","/","painel"],["Configurações › Visão geral: progresso e “O que falta preencher”","/configuracoes/","config"],["Dados institucionais (denominação religiosa)","/configuracoes/dados-institucionais/","cfg-dados"],["Endereço: CEP, logradouro, número, bairro, cidade, estado","/configuracoes/endereco/","cfg-endereco"],["Contatos: telefone, WhatsApp, e-mail institucional","/configuracoes/contatos/","cfg-contatos"],["Redes sociais (ao menos uma)","/configuracoes/redes-sociais/","cfg-redes"],["Liderança (ao menos um responsável)","/configuracoes/lideranca/","cfg-lideranca"],["Dados legais: CNPJ e razão social","/configuracoes/dados-legais/","cfg-legais"],["Identidade visual: logo e cores","/configuracoes/identidade-visual/","cfg-identidade"],["Preferências: moeda, fuso, prefixo da carteirinha, notificações, chat","/configuracoes/preferencias/","cfg-preferencias"],["Integrações (ao menos uma ativa)","/configuracoes/integracoes/","cfg-integracoes"],["Limites de Uso e Minha Assinatura","/limites-de-uso/","limites"]],
+  exercicio:"Levar o perfil da igreja de 18% para 100% em Configurações › Visão geral.",dica:"A homologação está em 18% (CNPJ e endereço vazios). Sem esses dados, carteirinhas e documentos saem incompletos. Defina o prefixo da carteirinha antes de emitir a primeira.",tags:"configurações perfil igreja cnpj endereço preferências identidade visual logo carteirinha prefixo integrações assinatura plano"},
+ {id:"m02",fase:1,titulo:"Unidades: matriz e filiais",objetivo:"Entender a rede de unidades e o escopo de cada uma.",prereq:["m01"],
+  roteiro:[["Central de Filiais: membros e ativos por unidade","/membros/central-filiais/","filiais"],["Filtro “Toda a rede” × uma unidade, no painel","/","painel"],["Cada cadastro pertence a uma única unidade","/membros/central-filiais/","filiais"]],
+  exercicio:"Comparar os números da Matriz com os de uma filial pelo filtro de unidade do painel.",dica:"Cada cadastro conta numa única unidade. Se um registro “sumiu”, confira primeiro o filtro de unidade.",tags:"filial filiais matriz unidade rede igrejas central"},
+ {id:"m03",fase:1,titulo:"Cargos eclesiásticos",objetivo:"Montar a hierarquia de cargos da igreja.",prereq:["m01"],
+  roteiro:[["Novo cargo: nome, tipo, grupo, superior, código","/cargos/","cargos"],["Ativar e inativar cargos; filtros por tipo e situação","/cargos/","cargos"]],
+  exercicio:"Cadastrar Pastor, Presbítero, Diácono e Obreiro com a hierarquia correta.",dica:"O campo “Superior” define a hierarquia. Crie os cargos de cima para baixo.",tags:"cargo cargos hierarquia pastor presbítero diácono obreiro"},
+ {id:"m04",fase:2,titulo:"Membros",objetivo:"Cadastrar, buscar, filtrar e arquivar membros.",prereq:["m01","m02"],
+  roteiro:[["Lista de Membros e filtros: unidade, situação, cargo, arquivados","/membros/","membros"],["Novo membro pelo assistente: dados pessoais, depois “Próxima”","/membros/novo/wizard/","membro-novo"],["Editar, arquivar e tratar duplicados","/membros/","membros"],["Contas de membro e “Ativar minha conta de membro”","/membros/contas/","membros-contas"]],
+  exercicio:"Cadastrar 3 membros completos, com CPF e data de nascimento.",dica:"A data de nascimento alimenta os avisos de aniversariantes. Arquivar remove o membro das contagens; inativar mantém.",tags:"membro membros cadastro wizard cpf arquivar duplicado conta aniversariante"},
+ {id:"m05",fase:2,titulo:"Usuários e permissões",objetivo:"Dar acesso ao sistema com o papel certo.",prereq:["m04"],prereqTxt:"O membro precisa existir antes do usuário.",
+  roteiro:[["Conceder acesso: membro já cadastrado, unidade, conta existente","/usuarios/","usuario-novo"],["Os 8 papéis: Administrador, Pastor, Presbítero, Secretário, Tesoureiro, Líder, Professor, Membro","/usuarios/","usuario-novo"],["Ativar e desativar o acesso","/usuarios/","usuarios"]],
+  exercicio:"Criar um usuário Secretário na Matriz e um Líder numa filial.",dica:"Erro mais comum: tentar criar o usuário antes do membro. Dê o papel Administrador só para quem precisa.",tags:"usuário usuários acesso login permissão papel perfil administrador secretário tesoureiro líder"},
+ {id:"m06",fase:2,titulo:"Visitantes, crianças, congregados e novos convertidos",objetivo:"Registrar quem ainda não é membro e acompanhar cada pessoa.",prereq:["m04"],
+  roteiro:[["Novo visitante: nome, WhatsApp, “Autoriza contato”, data da visita","/visitantes/novo/","visitante-novo"],["Lista de visitantes: visitas, acompanhamento e status","/visitantes/","visitantes"],["Crianças","/criancas/","criancas"],["Congregados","/congregados/","congregados"],["Novos Convertidos: culto, responsável, status e “Acompanhar”","/novos-convertidos/","convertidos"]],
+  exercicio:"Registrar um visitante com autorização de contato e acompanhar um novo convertido.",dica:"Esses cadastros não somam no total de membros. Sem “Autoriza contato” marcado, não faça abordagem pelo WhatsApp (LGPD).",tags:"visitante visitantes criança crianças congregado novo convertido conversão lgpd whatsapp"},
+ {id:"m07",fase:2,titulo:"Famílias, células e assistência social",objetivo:"Organizar as pessoas em núcleos.",prereq:["m04"],
+  roteiro:[["Nova família: nome e responsável principal","/familias/novo/","familia-nova"],["Nova célula: líder, supervisor, dia, horário, local","/celulas/novo/","celula-nova"],["Assistência Social: famílias assistidas","/assistencia-social/","assistencia"]],
+  exercicio:"Criar uma família com 3 membros e uma célula com líder e supervisor.",dica:"O “Responsável principal” da família lista usuários, não todos os membros. Os 156 membros só aparecem nos campos de líder e supervisor.",tags:"família famílias célula células pequeno grupo líder supervisor assistência social"},
+ {id:"m08",fase:2,titulo:"Departamentos, nomeações e atribuições",objetivo:"Estruturar os ministérios e suas lideranças.",prereq:["m03","m04"],
+  roteiro:[["Novo departamento: nome e líder (gera a “Equipe Geral”)","/departamentos/novo/","departamento-novo"],["Ligar membros a departamentos","/departamentos/","departamentos"],["Nova nomeação: membro, cargo, datas, tipo de vínculo, cargo principal","/nomeacoes/nova/","nomeacao-nova"],["Atribuições Ministeriais: histórico","/atribuicoes/","atribuicoes"]],
+  exercicio:"Nomear um membro Diácono titular e defini-lo como líder de um departamento.",dica:"A homologação tem 152 membros sem departamento e 5 departamentos sem responsável. Escalas e eventos dependem desse vínculo.",tags:"departamento departamentos ministério nomeação nomeações atribuição consagração vínculo equipe"},
+ {id:"m09",fase:3,titulo:"Agenda, eventos, cultos, escalas e presença",objetivo:"Planejar a semana da igreja.",prereq:["m05","m08"],
+  roteiro:[["Novo evento: título, início, tipo (Evento ou Culto), equipe, dirigente","/eventos/novo/","evento-novo"],["Agenda de eventos","/eventos/","eventos"],["Calendário anual","/calendario/","calendario"],["Cultos de hoje","/cultos/hoje/","cultos"],["Nova escala: título, data, departamento, equipe, membro","/escalas/nova/","escala-nova"],["Minhas escalas e Oportunidades","/escalas/","escalas"],["Presenças","/presencas/","presencas"],["Pregadores e Cantores","/convidados/","convidados"],["Reuniões e Atas","/reunioes/listar/","reunioes"],["Culto Ao Vivo","/cultos-ao-vivo/","ao-vivo"]],
+  exercicio:"Criar o culto de domingo, escalar 3 voluntários do Louvor e registrar a presença.",dica:"Só eventos do tipo Culto e publicados aparecem em “Cultos de hoje”. Sem usuário criado, ninguém aparece como dirigente.",tags:"evento eventos culto cultos agenda calendário escala escalas voluntário presença frequência reunião ata convidado pregador cantor transmissão ao vivo"},
+ {id:"m10",fase:3,titulo:"EBD e cursos",objetivo:"Gerir o ensino da igreja.",prereq:["m04"],
+  roteiro:[["Turmas EBD","/turmas-ebd/","turmas"],["Alunos EBD: aluno, turma, membro","/ebd/","ebd"],["Cursos: categoria e modalidade","/cursos/","cursos"]],
+  exercicio:"Criar uma turma e matricular 5 alunos.",dica:"Crie a turma antes dos alunos.",tags:"ebd escola bíblica turma aluno curso cursos ensino"},
+ {id:"m11",fase:3,titulo:"Comunicação e documentos",objetivo:"Falar com a comunidade e emitir documentos.",prereq:["m01","m04"],
+  roteiro:[["Mural de avisos","/avisos/","avisos"],["Notícias","/noticias/","noticias"],["Testemunhos","/testemunhos/","testemunhos"],["Pedidos de Oração: categorias e círculos","/oracoes/","oracoes"],["Batismo: solicitações","/batismo/","batismo"],["Chat","/chat/","chat"],["Central de documentos: modelos, solicitações, emissão","/documentos/","documentos"],["Modelos de Carteirinha","/membros/carteirinhas/modelos/","cart-modelos"],["Emissão de carteirinhas","/membros/carteirinhas/","carteirinhas"]],
+  exercicio:"Publicar um aviso, aprovar uma solicitação de documento e emitir uma carteirinha.",dica:"Configure o chat em Preferências (proteção de menores, retenção do histórico) antes de ativá-lo para os membros.",tags:"aviso avisos notícia testemunho oração batismo chat documento certificado carteirinha comunicação"},
+ {id:"m12",fase:4,titulo:"Patrimônio, compras e RH",objetivo:"Controlar bens, compras e funcionários.",prereq:["m04","m08"],
+  roteiro:[["Fornecedores","/patrimonio/fornecedores/","fornecedores"],["Novo bem: descrição, código, categoria, local, status, responsável","/patrimonio/bens/novo/","bem-novo"],["Solicitações de compra","/patrimonio/solicitacoes/","solicitacoes"],["Retiradas e devoluções","/patrimonio/retiradas/","retiradas"],["Manutenções","/patrimonio/manutencoes/","manutencoes"],["Baixas","/patrimonio/baixas/","baixas"],["RH › Tipos de Vínculo","/rh/vinculos/","rh-vinculos"],["RH › Cargos e Funções","/rh/cargos/","rh-cargos"],["RH › Novo funcionário (inclui banco e PIX)","/rh/funcionarios/novo/","rh-funcionario-novo"],["RH › Contratos","/rh/contratos/","rh-contratos"],["RH › Férias e Afastamentos","/rh/ferias/","rh-ferias"],["RH › Folha e Horas Extras","/rh/folha/","rh-folha"]],
+  exercicio:"Cadastrar um bem com responsável, registrar retirada e devolução, e fazer uma folha de teste.",dica:"25 de 26 bens estão sem responsável. Defina o responsável já no cadastro. No RH, cadastre Vínculos e Cargos antes do funcionário.",tags:"patrimônio bem bens fornecedor compra solicitação retirada baixa manutenção rh funcionário folha férias afastamento contrato hora extra"},
+ {id:"m13",fase:5,titulo:"Painéis e relatórios",objetivo:"Ler os indicadores e tirar relatórios.",prereq:["m09","m11","m12"],prereqTxt:"Todos os módulos anteriores.",
+  roteiro:[["Painel: comunidade, unidades, evolução dos cadastros, “Atenção da Liderança”","/","painel"],["Dashboard RH","/rh/","rh-painel"],["Relatórios de Patrimônio","/patrimonio/relatorios/patrimonio/","rel-patrimonio"],["Relatórios de Compras","/patrimonio/relatorios/compras/","rel-compras"],["Limites de Uso","/limites-de-uso/","limites"]],
+  exercicio:"Zerar as pendências do quadro “Atenção da Liderança” de uma unidade.",dica:"A “evolução dos cadastros” mostra a data de cadastro no sistema, inclusive importações. Não é crescimento real da igreja.",tags:"painel dashboard indicador relatório relatórios gráfico limites"}
+];
+const CRONO=[["Semana 1",["m01","m02","m03"],"Perfil 100%, unidades conferidas, cargos criados"],["Semana 2",["m04","m05"],"Base de membros carregada (+ importação, se corrigida), usuários e papéis definidos"],["Semana 3",["m06","m07","m08"],"Departamentos com líder, membros vinculados, células e famílias"],["Semana 4",["m09","m10"],"Agenda do mês, escalas e EBD rodando"],["Semana 5",["m11","m12"],"Comunicação ativa, patrimônio inventariado, RH cadastrado"],["Semana 6",["m13"],"Painel sem pendências críticas, liderança treinada nos relatórios"]];
+
+// ---------- Estado (por navegador) ----------
+const KEY="mo-treinamento-v1";
+let S={steps:{},ex:{},base:"https://homologacao.ministerioon.com.br"};
+try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let DUR={};fetch("videos/duracoes.json").then(r=>r.ok?r.json():{}).then(d=>{DUR=d||{};render(true)}).catch(()=>{});
+
+const byId=Object.fromEntries(MODULOS.map(m=>[m.id,m]));
+const fase=id=>FASES.find(f=>f.id===id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num=m=>m.id.slice(1);
+const link=p=>S.base.replace(/\/+$/,"")+p;
+const done=m=>m.roteiro.filter((_,i)=>S.steps[m.id+":"+i]).length;
+const status=m=>{const d=done(m)+(S.ex[m.id]?1:0),t=m.roteiro.length+1;return d===0?"todo":d===t?"done":"part"};
+const stLabel=s=>s==="done"?"Concluído":s==="part"?"Em andamento":"Não iniciado";
+const dur=id=>DUR[id]?`${Math.floor(DUR[id]/60)}:${String(Math.round(DUR[id]%60)).padStart(2,"0")}`:"";
+const thumb=m=>`assets/telas/${m.roteiro[m.id==="m03"?0:Math.min(1,m.roteiro.length-1)][2]}.jpg`;
+const poster=m=>`videos/${m.id}.jpg`;
+function totais(){let d=0,t=0;MODULOS.forEach(m=>{d+=done(m)+(S.ex[m.id]?1:0);t+=m.roteiro.length+1});return {d,t,p:t?Math.round(d/t*100):0}}
+const proximo=()=>MODULOS.find(m=>status(m)!=="done");
+
+// ---------- Componentes ----------
+function modCard(m){const f=fase(m.fase),st=status(m);return `<a class="mod rv" href="#${m.id}" style="--pc:var(${f.cor})">
+  <div class="th"><img loading="lazy" src="${thumb(m)}" alt=""><span class="num">${num(m)}</span><span class="play"><i>▶</i>Videoaula${dur(m.id)?" · "+dur(m.id):""}</span></div>
+  <div class="bd"><h4>${esc(m.titulo)}</h4><p>${esc(m.objetivo)}</p><div class="ft"><span>${m.roteiro.length} passos</span><span class="badge ${st}">${stLabel(st)}</span></div></div></a>`}
+
+function pInicio(){
+  const T=totais(),px=proximo(),durTot=Object.values(DUR).reduce((a,b)=>a+b,0);
+  return `
+  <section class="hero"><div class="sky"><div class="g g1"></div><div class="g g2"></div><div class="grid"></div></div>
+   <div class="wrap">
+    <div class="hero-copy">
+      <span class="pill"><i>✓</i>Trilha oficial de implantação</span>
+      <h1>Sua igreja <span class="grad">no ar</span> em seis semanas.</h1>
+      <p class="lead">13 videoaulas curtas, com as telas reais do Ministério On, na ordem certa de implantação. Assista, pratique no sistema e marque cada passo.</p>
+      <div class="cta">${px?`<a class="btn pri" href="#${px.id}">${T.d?"Continuar":"Começar"}: módulo ${num(px)} →</a>`:`<a class="btn pri" href="#cronograma">Trilha concluída ✓</a>`}<a class="btn ghost" href="#trilha">Ver a trilha</a></div>
+      <div class="stats"><div><b>13</b><span>videoaulas</span></div><div><b>88</b><span>passos práticos</span></div><div><b>${durTot?Math.round(durTot/60):"~14"}</b><span>minutos de vídeo</span></div><div><b class="hl">${T.p}%</b><span>seu progresso</span></div></div>
+    </div>
+    <div class="stage" aria-hidden="true">
+      <div class="halo"></div><div class="orb o3"></div><div class="orb o1"></div><div class="orb o2"></div>
+      <div class="screen"><div class="bar"><i></i><i></i><i></i><span>homologacao.ministerioon.com.br</span></div><img src="assets/telas/painel-hero.jpg" alt=""></div>
+      <div class="chipf c1"><span class="ic">✓</span><span>Perfil da igreja<small>18% → 100%</small></span></div>
+      <div class="chipf c2"><span class="ic">★</span><span>Dica de ouro<small>Membro antes do usuário</small></span></div>
+      <div class="chipf c3"><span class="ic">▶</span><span>Módulo 09<small>Escalas e cultos</small></span></div>
+    </div>
+   </div>
+  </section>
+
+  <section class="sec" style="padding-top:20px"><div class="wrap">
+    <div class="sec-head rv"><span class="mono">Aula 01 · comece por aqui</span><h2>Assista à <span class="hl">primeira aula</span>.</h2><p>Cada módulo abre com um vídeo narrado de um a dois minutos, direto ao ponto, com as telas do sistema.</p></div>
+    <div class="cinema rv"><span class="tagv">Videoaula</span><video controls preload="metadata" playsinline poster="${poster(byId.m01)}" src="videos/m01.mp4"></video></div>
+  </div></section>
+
+  <section class="sec" id="sec-trilha"><div class="wrap">
+    <div class="sec-head rv"><span class="mono">A trilha</span><h2>Cinco fases. <span class="hl">Uma ordem</span> que funciona.</h2><p>Cada fase usa o que foi cadastrado na anterior. Pule etapas e o sistema trava lá na frente.</p></div>
+    <div class="trilha">
+      <div class="fase-nav" id="faseNav">${FASES.map(f=>`<a href="#trilha" data-f="${f.id}" style="--pc:var(${f.cor})"><b>${f.id}</b><span>${esc(f.nome)}<small>${MODULOS.filter(m=>m.fase===f.id).length} módulo(s)</small></span></a>`).join("")}</div>
+      <div class="fases">${FASES.map(f=>`<div class="fase" id="fase-${f.id}" data-f="${f.id}" style="--pc:var(${f.cor})"><h3 class="rv"><span class="mono">Fase ${f.id}</span>${esc(f.nome)}</h3><p class="rv">${esc(f.resumo)}</p><div class="mods">${MODULOS.filter(m=>m.fase===f.id).map(modCard).join("")}</div></div>`).join("")}</div>
+    </div>
+  </div></section>
+
+  <section class="sec"><div class="wrap">
+    <div class="sec-head rv"><span class="mono">Como funciona</span><h2>Assista. Pratique. <span class="hl">Marque.</span></h2></div>
+    <div class="bento">
+      <div class="bx a rv"><span class="mono" style="color:var(--lime)">Roteiro em checklist</span><h3>Cada passo leva direto à tela certa.</h3><p>Clique em “Abrir” e o sistema abre na tela do passo. Marque quando terminar.</p>
+        <div class="mini-steps"><div class="ok"><b></b>Novo membro pelo assistente<code>/membros/novo/</code></div><div class="ok"><b></b>Conceder acesso ao membro<code>/usuarios/</code></div><div><b></b>Nova escala do louvor<code>/escalas/nova/</code></div></div></div>
+      <div class="bx b lime rv"><span class="mono">Ritmo de short</span><div class="big">1–2 min</div><p>por aula. Gancho, passo a passo e dica, sem enrolação.</p></div>
+      <div class="bx c rv"><span class="mono" style="color:var(--lime)">Exercício prático</span><h3>Uma tarefa real por módulo.</h3><p>Ex.: criar o culto de domingo e escalar três voluntários.</p></div>
+      <div class="bx d gold rv"><span class="mono" style="color:var(--gold)">Dica de ouro</span><h3>O erro que todo mundo comete.</h3><p>Ex.: criar o usuário antes do membro.</p></div>
+      <div class="bx e rv"><span class="mono" style="color:var(--lime)">Seu progresso</span><div class="big">${T.p}<span style="font-size:.5em">%</span></div><p>${T.d} de ${T.t} etapas, salvo neste navegador.</p></div>
+    </div>
+  </div></section>`;
+}
+
+function pArquitetura(){
+  const grupos=[["Pessoas","Membros, Central de Filiais, Carteirinhas, Visitantes, Crianças, Congregados, Novos Convertidos, Famílias, Assistência Social, Células"],["Ministérios e Equipes","Departamentos, Cargos Eclesiásticos, Nomeações, Atribuições Ministeriais"],["Atividades","Eventos, Cultos, Escalas, Presenças, Reuniões, Atas, EBD, Calendário, Pregadores e Cantores"],["Gestão","Patrimônio (Bens, Fornecedores, Solicitações, Retiradas, Baixas, Manutenções), RH, Cursos, Academia"],["Comunicação","Chat, Culto Ao Vivo, Avisos, Notícias, Testemunhos, Pedidos de Oração, Batismo, Documentos"],["Relatórios","Central, Patrimônio, Compras, Customizado"],["Configurações","Perfil da Igreja (9 seções), Usuários, Limites de Uso, Assinatura e Plano, Igrejas, Importar Dados"]];
+  const elos=[["Configurações","Dados da igreja, preferências, prefixo da carteirinha"],["Membro","A base de tudo"],["Usuário","Exige membro já cadastrado + unidade + papel"],["Cargos → Nomeações","Membro + cargo + tipo de vínculo"],["Departamentos","Líder = membro; gera a Equipe Geral"],["Escalas e Eventos","Departamento + equipe + membro / dirigente"]];
+  return `<section class="mhero"><div class="sky"><div class="g g1"></div><div class="grid"></div></div><div class="wrap">
+    <span class="pill"><i>⌘</i>Visão geral</span><h1>Arquitetura e <span class="grad">dependências</span></h1><p class="lead" style="color:var(--muted);max-width:40em">O sistema trabalha em rede (matriz e filiais). Quase toda tela filtra pela unidade selecionada.</p></div></section>
+  <section class="sec" style="padding-top:20px"><div class="wrap" style="display:flex;flex-direction:column;gap:40px">
+    <div><div class="sec-head rv" style="margin-bottom:20px"><span class="mono">Ordem obrigatória</span><h2 style="font-size:2rem">Cada elo depende do anterior.</h2></div>
+    <div class="chain">${elos.map((e,i)=>`<div class="lk rv"><b>${i+1}</b><h4>${e[0]}</h4><p>${e[1]}</p></div>`).join("")}</div></div>
+    <div class="note rv"><b>Atenção</b><p style="color:var(--muted)">O dirigente de um evento e o responsável de uma família vêm da lista de <b style="color:var(--fg)">usuários</b>, não de membros.</p></div>
+    <div><div class="sec-head rv" style="margin-bottom:20px"><span class="mono">O menu</span><h2 style="font-size:2rem">Sete grupos, ~65 telas.</h2></div>
+    <div class="tbl rv"><table><thead><tr><th>Grupo</th><th>Telas</th></tr></thead><tbody>${grupos.map(g=>`<tr><td>${g[0]}</td><td>${g[1]}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="tbl rv"><table><thead><tr><th>Área</th><th>Sequência</th></tr></thead><tbody>
+      <tr><td>Patrimônio</td><td>Fornecedores › Bens (com responsável) › Retiradas, Manutenções, Baixas</td></tr>
+      <tr><td>RH</td><td>Vínculos › Cargos e Funções › Funcionários › Contratos, Férias › Folha</td></tr>
+      <tr><td>Documentos</td><td>Dados institucionais › Modelos › Solicitações › Emissão</td></tr>
+      <tr><td>Carteirinhas</td><td>Prefixo em Preferências › Modelo › Emissão</td></tr>
+      <tr><td>EBD</td><td>Turmas › Alunos</td></tr></tbody></table></div>
+  </div></section>`;
+}
+
+function pCrono(){
+  return `<section class="mhero"><div class="sky"><div class="g g2"></div><div class="grid"></div></div><div class="wrap">
+    <span class="pill"><i>◷</i>Planejamento</span><h1>Seis semanas até a <span class="grad">igreja rodando</span>.</h1><p class="lead" style="color:var(--muted);max-width:40em">Entregas verificáveis no sistema ao fim de cada semana.</p></div></section>
+  <section class="sec" style="padding-top:20px"><div class="wrap" style="display:flex;flex-direction:column;gap:30px">
+    <div class="tl">${CRONO.map((c,i)=>{const ms=c[1].map(x=>byId[x]),all=ms.every(m=>status(m)==="done"),some=ms.some(m=>status(m)!=="todo"),st=all?"done":some?"part":"todo";
+      return `<div class="wk rv"><div class="dot ${st==="done"?"done":""}">${i+1}</div><div class="card"><h4>${c[0]} <span class="badge ${st}">${stLabel(st)}</span></h4><p>${c[2]}</p><div class="tags">${ms.map(m=>`<a href="#${m.id}">${num(m)} · ${esc(m.titulo)}${dur(m.id)?" · "+dur(m.id):""}</a>`).join("")}</div></div></div>`}).join("")}</div>
+    <div class="note rv"><b>Antes da Semana 2</b><p style="color:var(--muted)">Abrir chamado na <a href="${esc(link("/central-ajuda/chamados/novo/"))}" target="_blank" rel="noopener" style="color:var(--lime)">Central de Ajuda</a> para o erro 500 da Importação, os redirecionamentos de Relatórios, Igrejas e Equipe de Oração, e a liberação do Financeiro, se fizer parte do contrato.</p></div>
+  </div></section>`;
+}
+
+function pPend(){
+  return `<section class="mhero"><div class="sky"><div class="g g1"></div><div class="grid"></div></div><div class="wrap">
+    <span class="pill"><i>!</i>Levantamento de 24/11/2026</span><h1>Pendências do <span class="grad">ambiente</span></h1></div></section>
+  <section class="sec" style="padding-top:20px"><div class="wrap" style="display:flex;flex-direction:column;gap:24px">
+    <div class="note rv"><ul>
+      <li><b>Importar Dados</b> (<span class="code">/importacao/</span>) retorna erro 500.</li>
+      <li><b>Central de Relatórios</b>, <b>Relatório Customizado</b>, <b>Igrejas</b> e <b>Equipe de Oração</b> redirecionam para o painel.</li>
+      <li><b>Financeiro</b> não aparece no menu e <span class="code">/financeiro/</span> redireciona.</li>
+      <li><b>Academia</b> está bloqueada pelo plano.</li></ul></div>
+    <div class="tbl rv"><table><thead><tr><th>Indicador</th><th>Valor</th><th>Módulo que resolve</th></tr></thead><tbody>
+      <tr><td>Perfil da igreja preenchido</td><td>18% (8 de 45)</td><td><a href="#m01">Módulo 01</a></td></tr>
+      <tr><td>Membros sem departamento</td><td>152 de 156</td><td><a href="#m08">Módulo 08</a></td></tr>
+      <tr><td>Departamentos sem responsável</td><td>5 de 20</td><td><a href="#m08">Módulo 08</a></td></tr>
+      <tr><td>Bens sem responsável</td><td>25 de 26</td><td><a href="#m12">Módulo 12</a></td></tr></tbody></table></div>
+  </div></section>`;
+}
+
+function pAjustes(){
+  return `<section class="mhero"><div class="sky"><div class="g g2"></div><div class="grid"></div></div><div class="wrap"><span class="pill"><i>⚙</i>Ajustes</span><h1>Ajustes do <span class="grad">treinamento</span></h1></div></section>
+  <section class="sec" style="padding-top:20px"><div class="wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+    <div class="box settings"><span class="mono">Endereço do sistema</span><p class="msg">Os botões “Abrir” usam este endereço. Troque para produção quando a igreja for treinar com dados reais.</p><input id="base" type="url" value="${esc(S.base)}"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn pri" id="saveBase">Salvar endereço</button><span class="msg" id="baseMsg"></span></div></div>
+    <div class="box"><span class="mono">Progresso</span><p class="msg">Fica salvo só neste navegador. Zerar desmarca todas as etapas e exercícios.</p><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn ghost" id="reset">Zerar progresso</button><span class="msg" id="resetMsg"></span></div></div>
+  </div></section>`;
+}
+
+function pModulo(m){
+  const f=fase(m.fase),i=MODULOS.indexOf(m),prev=MODULOS[i-1],next=MODULOS[i+1],st=status(m);
+  const pre=m.prereq.map(p=>`<a class="${status(byId[p])==="done"?"ok":""}" href="#${p}">${num(byId[p])} · ${esc(byId[p].titulo)}${status(byId[p])==="done"?" ✓":""}</a>`).join("");
+  return `<section class="mhero" style="--pc:var(${f.cor})"><div class="sky"><div class="g g1"></div><div class="g g2"></div><div class="grid"></div></div>
+   <div class="wrap">
+    <div class="crumb"><a href="#trilha">Trilha</a><span>›</span><span class="mono">Fase ${f.id} · ${esc(f.nome)}</span></div>
+    <h1><span class="n">MÓDULO ${num(m)}</span>${esc(m.titulo)}</h1>
+    <div class="meta"><span class="badge ${st}">${stLabel(st)}</span><span class="badge">${done(m)}/${m.roteiro.length} passos</span>${dur(m.id)?`<span class="badge">▶ ${dur(m.id)}</span>`:""}</div>
+    <div class="cinema" style="margin-top:14px"><span class="tagv">Videoaula</span><video id="vid-${m.id}" controls preload="metadata" playsinline poster="${poster(m)}" src="videos/${m.id}.mp4"></video></div>
+   </div></section>
+  <div class="wrap mbody" style="--pc:var(${f.cor})">
+    <div>
+      <div class="steps-h"><h2>Roteiro de aulas</h2><span class="mono" style="color:var(--dim)">Marque cada passo ao concluir</span></div>
+      <ol class="steps">${m.roteiro.map((r,k)=>{const id=m.id+":"+k,ok=!!S.steps[id];return `<li class="step ${ok?"ok":""}"><input type="checkbox" id="s-${m.id}-${k}" data-step="${id}" ${ok?"checked":""} aria-label="Concluído: ${esc(r[0])}"><div class="sth"><img loading="lazy" src="assets/telas/${r[2]}.jpg" alt=""></div><label for="s-${m.id}-${k}"><span class="k">PASSO ${k+1}</span><b>${esc(r[0])}</b><span>${esc(r[1])}</span></label><a class="go" href="${esc(link(r[1]))}" target="_blank" rel="noopener">Abrir ↗</a></li>`}).join("")}</ol>
+    </div>
+    <aside class="mside">
+      <div class="box"><span class="mono">Objetivo</span><p>${esc(m.objetivo)}</p></div>
+      <div class="box"><span class="mono">Pré-requisitos</span>${m.prereqTxt?`<p class="msg">${esc(m.prereqTxt)}</p>`:""}${pre?`<div class="chips">${pre}</div>`:(m.prereqTxt?"":`<p class="msg">Nenhum.</p>`)}</div>
+      <div class="box ex"><span class="mono">Exercício prático</span><p>${esc(m.exercicio)}</p><button class="btn ${S.ex[m.id]?"ghost":"pri"}" data-ex="${m.id}">${S.ex[m.id]?"✓ Feito · desmarcar":"Marcar como feito"}</button></div>
+      <div class="box gd"><span class="mono">★ Dica de ouro</span><p>${esc(m.dica)}</p></div>
+    </aside>
+  </div>
+  <div class="wrap"><nav class="pager" aria-label="Módulos vizinhos">${prev?`<a href="#${prev.id}"><small>← Anterior</small><b>${num(prev)} · ${esc(prev.titulo)}</b></a>`:`<a href="#inicio"><small>← Voltar</small><b>Início</b></a>`}${next?`<a class="next" href="#${next.id}"><small>Próximo →</small><b>${num(next)} · ${esc(next.titulo)}</b></a>`:`<a class="next" href="#cronograma"><small>Próximo →</small><b>Cronograma</b></a>`}</nav></div>`;
+}
+
+// ---------- Drawer, nav, progresso ----------
+function renderDrawer(){
+  const q=document.getElementById("q").value.trim().toLowerCase(),cur=location.hash.slice(1);let h="",any=false;
+  FASES.forEach(f=>{const ms=MODULOS.filter(m=>m.fase===f.id&&(!q||(m.titulo+" "+m.tags+" "+m.roteiro.map(r=>r[0]).join(" ")).toLowerCase().includes(q)));if(!ms.length)return;any=true;
+    h+=`<div class="dgrp" style="--pc:var(${f.cor})"><span class="mono">Fase ${f.id} · ${esc(f.nome)}</span>${ms.map(m=>`<a class="dl ${cur===m.id?"on":""}" href="#${m.id}"><span class="n">${num(m)}</span>${esc(m.titulo)}<span class="st ${status(m)}" aria-label="${stLabel(status(m))}"></span></a>`).join("")}</div>`});
+  if(q&&!any)h=`<p class="empty">Nenhum módulo para “${esc(q)}”.</p>`;
+  document.getElementById("dlist").innerHTML=h;
+}
+function renderChrome(){
+  const T=totais(),px=proximo(),r=location.hash.slice(1)||"inicio";
+  document.getElementById("ringC").style.strokeDashoffset=100.5*(1-T.p/100);
+  document.getElementById("ringT").textContent=T.p+"%";
+  const b=document.getElementById("contBtn");
+  if(px){b.href="#"+px.id;b.textContent=(T.d?"Continuar · ":"Começar · ")+num(px)}else{b.href="#cronograma";b.textContent="Concluída ✓"}
+  document.querySelectorAll(".nav nav a").forEach(a=>a.classList.toggle("on",a.dataset.r===r||(a.dataset.r==="trilha"&&/^m\d+$/.test(r))));
+  renderDrawer();
+}
+
+// ---------- Roteamento ----------
+let io;
+function render(keepScroll){
+  let r=location.hash.slice(1)||"inicio";
+  const v=document.getElementById("view");
+  const old=v.querySelector("video"),keep=keepScroll&&old?{id:old.id,t:old.currentTime,play:!old.paused}:null;
+  if(old&&!keep)old.pause();
+  const toTrilha=r==="trilha";if(toTrilha)r="inicio";
+  v.innerHTML=byId[r]?pModulo(byId[r]):r==="arquitetura"?pArquitetura():r==="cronograma"?pCrono():r==="pendencias"?pPend():r==="ajustes"?pAjustes():pInicio();
+  document.title=(byId[r]?`Módulo ${num(byId[r])} · ${byId[r].titulo} · `:"")+"Ministério On Treinamento";
+  renderChrome();
+  if(keep){const nv=v.querySelector("video");if(nv&&nv.id===keep.id){const go=()=>{nv.currentTime=keep.t;if(keep.play)nv.play().catch(()=>{})};nv.readyState>=1?go():nv.addEventListener("loadedmetadata",go,{once:true})}}
+  // revelar ao rolar
+  if(io)io.disconnect();
+  const els=[...v.querySelectorAll(".rv")];
+  if("IntersectionObserver" in window){io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});els.forEach(e=>io.observe(e))}else els.forEach(e=>e.classList.add("in"));
+  requestAnimationFrame(()=>els.forEach(e=>{if(e.getBoundingClientRect().top<innerHeight)e.classList.add("in")}));
+  // fase ativa na trilha
+  const fn=document.getElementById("faseNav");
+  if(fn){const fo=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)fn.querySelectorAll("a").forEach(a=>a.classList.toggle("on",a.dataset.f===e.target.dataset.f))}),{rootMargin:"-40% 0px -55% 0px"});v.querySelectorAll(".fase").forEach(x=>fo.observe(x));fn.querySelector("a").classList.add("on");
+    fn.querySelectorAll("a").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();document.getElementById("fase-"+a.dataset.f).scrollIntoView({behavior:"smooth",block:"start"})}))}
+  if(toTrilha)setTimeout(()=>document.getElementById("sec-trilha").scrollIntoView({behavior:"smooth"}),30);
+  else if(!keepScroll)window.scrollTo(0,0);
+  closeDrawer();
+}
+window.addEventListener("hashchange",()=>render(false));
+document.getElementById("q").addEventListener("input",renderDrawer);
+const view=document.getElementById("view");
+view.addEventListener("change",e=>{const s=e.target.dataset.step;if(!s)return;if(e.target.checked)S.steps[s]=1;else delete S.steps[s];save();
+  const li=e.target.closest(".step");li.classList.toggle("ok",e.target.checked);renderChrome();
+  const m=byId[s.split(":")[0]],meta=view.querySelector(".mhero .meta");if(meta)meta.innerHTML=`<span class="badge ${status(m)}">${stLabel(status(m))}</span><span class="badge">${done(m)}/${m.roteiro.length} passos</span>${dur(m.id)?`<span class="badge">▶ ${dur(m.id)}</span>`:""}`});
+view.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.ex){const id=b.dataset.ex;if(S.ex[id])delete S.ex[id];else S.ex[id]=1;save();b.className="btn "+(S.ex[id]?"ghost":"pri");b.textContent=S.ex[id]?"✓ Feito · desmarcar":"Marcar como feito";renderChrome();
+    const m=byId[id],meta=view.querySelector(".mhero .meta");if(meta)meta.querySelector(".badge").outerHTML=`<span class="badge ${status(m)}">${stLabel(status(m))}</span>`}
+  if(b.id==="saveBase"){const val=document.getElementById("base").value.trim();if(/^https?:\/\/\S+$/.test(val)){S.base=val;save();document.getElementById("baseMsg").textContent="Endereço salvo."}else document.getElementById("baseMsg").textContent="Digite o endereço completo, começando com https://"}
+  if(b.id==="reset"){if(b.dataset.armed){S.steps={};S.ex={};save();renderChrome();delete b.dataset.armed;b.textContent="Zerar progresso";document.getElementById("resetMsg").textContent="Progresso zerado."}else{b.dataset.armed="1";b.textContent="Clique de novo para confirmar"}}
+});
+const drawer=document.getElementById("drawer"),mb=document.getElementById("menuBtn");
+function openDrawer(){drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");mb.setAttribute("aria-expanded","true");renderDrawer();setTimeout(()=>document.getElementById("q").focus(),50)}
+function closeDrawer(){drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");mb.setAttribute("aria-expanded","false")}
+mb.addEventListener("click",openDrawer);
+document.getElementById("closeDrawer").addEventListener("click",closeDrawer);
+drawer.addEventListener("click",e=>{if(e.target===drawer)closeDrawer()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();if(e.key==="/"&&document.activeElement.tagName!=="INPUT"){e.preventDefault();openDrawer()}});
+document.documentElement.classList.add("js");
+render(false);
+</script>
+</body>
+</html>
